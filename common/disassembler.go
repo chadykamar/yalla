@@ -25,11 +25,19 @@ func (d *Disassembler) Disassemble(name string) {
 func (d *Disassembler) disassembleInstruction(offset int) int {
 	fmt.Fprintf(d.Writer, "%04d ", offset)
 
+	if offset > 0 && d.Chunk.lines[offset] == d.Chunk.lines[offset-1] {
+		fmt.Fprint(d.Writer, "   | ")
+	} else {
+		fmt.Fprintf(d.Writer, "%4d ", d.Chunk.lines[offset])
+	}
+
 	instruction := d.Chunk.code[offset]
 
 	switch instruction {
 	case OpReturn:
 		return d.simpleInstruction("OpReturn", offset)
+	case OpConstant:
+		return d.constantInstruction("OpConstant", offset)
 
 	default:
 		fmt.Fprintf(d.Writer, "Unknown opcode %d\n", instruction)
@@ -41,4 +49,10 @@ func (d *Disassembler) disassembleInstruction(offset int) int {
 func (d *Disassembler) simpleInstruction(name string, offset int) int {
 	fmt.Fprintf(d.Writer, "%s\n", name)
 	return offset + 1
+}
+
+func (d *Disassembler) constantInstruction(name string, offset int) int {
+	constantIndex := d.Chunk.code[offset+1]
+	fmt.Fprintf(d.Writer, "%-16s %4d '%v'\n", name, constantIndex, d.Chunk.constants[constantIndex])
+	return offset + 2
 }
