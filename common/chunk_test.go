@@ -14,6 +14,7 @@ func TestDisassemble(t *testing.T) {
 	constantIndex := c.AddConstant(1.2)
 	c.Write(OpConstant, 123)
 	c.Write(constantIndex, 123)
+	c.Write(OpNegate, 123)
 	c.Write(OpReturn, 123)
 	builder := strings.Builder{}
 
@@ -23,7 +24,8 @@ func TestDisassemble(t *testing.T) {
 
 	expectedString := `== test chunk ==
 0000  123 OpConstant          0 '1.2'
-0002    | OpReturn
+0002    | OpNegate
+0003    | OpReturn
 `
 
 	actualString := builder.String()

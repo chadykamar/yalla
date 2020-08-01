@@ -84,6 +84,15 @@ func (vm *VirtualMachine) run() (InterpretResult, error) {
 				vm.Stack.Push(constant)
 
 			}
+		case OpNegate:
+			{
+				val, err := vm.Stack.Pop()
+				if err != nil {
+					log.Fatal(err)
+				}
+				vm.Stack.Push(-val)
+			}
+
 		}
 	}
 
