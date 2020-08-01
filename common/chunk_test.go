@@ -17,9 +17,9 @@ func TestDisassemble(t *testing.T) {
 	c.Write(OpReturn, 123)
 	builder := strings.Builder{}
 
-	d := Disassembler{c, &builder}
+	d := Disassembler{&builder}
 
-	d.Disassemble("test chunk")
+	d.Disassemble(*c, "test chunk")
 
 	expectedString := `== test chunk ==
 0000  123 OpConstant          0 '1.2'
