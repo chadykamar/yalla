@@ -92,6 +92,14 @@ func (vm *VirtualMachine) run() (InterpretResult, error) {
 				}
 				vm.Stack.Push(-val)
 			}
+		case OpAdd:
+			vm.add()
+		case OpSubtract:
+			vm.subtract()
+		case OpMultiply:
+			vm.multiply()
+		case OpDivide:
+			vm.divide()
 
 		}
 	}
@@ -106,4 +114,49 @@ func (vm *VirtualMachine) readByte() byte {
 	b := vm.Chunk.code[vm.InstructionCounter]
 	vm.InstructionCounter++
 	return b
+}
+
+func (vm *VirtualMachine) add() {
+	a, err := vm.Stack.Pop()
+	if err != nil {
+		log.Fatal(err) // TODO Handle this error
+	}
+	b, err := vm.Stack.Pop()
+	if err != nil {
+		log.Fatal(err) // TODO Handle this error
+	}
+	vm.Stack.Push(a + b)
+}
+func (vm *VirtualMachine) subtract() {
+	a, err := vm.Stack.Pop()
+	if err != nil {
+		log.Fatal(err) // TODO Handle this error
+	}
+	b, err := vm.Stack.Pop()
+	if err != nil {
+		log.Fatal(err) // TODO Handle this error
+	}
+	vm.Stack.Push(a - b)
+}
+func (vm *VirtualMachine) multiply() {
+	a, err := vm.Stack.Pop()
+	if err != nil {
+		log.Fatal(err) // TODO Handle this error
+	}
+	b, err := vm.Stack.Pop()
+	if err != nil {
+		log.Fatal(err) // TODO Handle this error
+	}
+	vm.Stack.Push(a * b)
+}
+func (vm *VirtualMachine) divide() {
+	a, err := vm.Stack.Pop()
+	if err != nil {
+		log.Fatal(err) // TODO Handle this error
+	}
+	b, err := vm.Stack.Pop()
+	if err != nil {
+		log.Fatal(err) // TODO Handle this error
+	}
+	vm.Stack.Push(a / b)
 }

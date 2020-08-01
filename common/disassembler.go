@@ -39,6 +39,14 @@ func (d *Disassembler) disassembleInstruction(chunk Chunk, offset int) int {
 		return d.constantInstruction(chunk, "OpConstant", offset)
 	case OpNegate:
 		return d.simpleInstruction("OpNegate", offset)
+	case OpAdd:
+		return d.simpleInstruction("OpAdd", offset)
+	case OpSubtract:
+		return d.simpleInstruction("OpSubtract", offset)
+	case OpMultiply:
+		return d.simpleInstruction("OpMultiply", offset)
+	case OpDivide:
+		return d.simpleInstruction("OpDivide", offset)
 	default:
 		fmt.Fprintf(d.Writer, "Unknown opcode %d\n", instruction)
 		return offset + 1
