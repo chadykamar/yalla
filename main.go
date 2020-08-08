@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
 	"strings"
 
@@ -9,34 +12,57 @@ import (
 )
 
 func main() {
-	c := common.NewChunk([]byte{})
 
-	constantIndex := c.AddConstant(1.2)
-	c.Write(common.OpConstant, 123)
-	c.Write(constantIndex, 123)
+	args := os.Args
+	argc := len(args)
+	if argc == 1 {
+		repl()
+	} else if argc == 2 {
+		runFile(args[1])
+	} else {
+		fmt.Fprintln(os.Stderr, "Usage: yalla [path]")
+	}
 
-	constantIndex = c.AddConstant(3.4)
-	c.Write(common.OpConstant, 123)
-	c.Write(constantIndex, 123)
+}
 
-	c.Write(common.OpAdd, 123)
+func repl() {
 
-	constantIndex = c.AddConstant(5.6)
-	c.Write(common.OpConstant, 123)
-	c.Write(constantIndex, 123)
+	fmt.Println("Yalla REPL")
 
-	c.Write(common.OpDivide, 123)
-	c.Write(common.OpNegate, 123)
+	reader := bufio.NewReader(os.Stdin)
 
-	c.Write(common.OpReturn, 123)
-	builder := strings.Builder{}
+	for {
+		fmt.Print("> ")
+		_, err := reader.ReadString('\n')
+		vm := common.NewVirtualMachine(reader, os.Stdout)
+		if err != nil {
+			fmt.Println("Could not read line")
+		}
 
-	d := common.Disassembler{Writer: &builder}
-	d.Disassemble(*c, "test chunk")
-	fmt.Println(builder.String())
+		vm.Interpret()
 
-	vm := common.NewVirtualMachine(os.Stdout)
+	}
 
-	vm.Interpret(c)
+}
+
+func runFile(filename string) {
+
+	content, err := ioutil.ReadFile(filename)
+	if err != nil {
+		log.Fatalf("Could not read file %s", filename)
+	}
+
+	text := string(content)
+
+	reader := strings.NewReader(text)
+	vm := common.NewVirtualMachine(reader, os.Stdout)
+
+	result, err := vm.Interpret()
+
+	if result == common.InterpretCompileError {
+		os.Exit(65)
+	} else if result == common.InterpretRuntimeError {
+		os.Exit(70)
+	}
 
 }
