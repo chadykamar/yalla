@@ -27,10 +27,11 @@ type VirtualMachine struct {
 	InstructionCounter byte
 	Stack              Stack
 	Disassembler
+	Compiler
 }
 
 // NewVirtualMachine will initialize a VirtualMachine struct
-func NewVirtualMachine(writer io.Writer) *VirtualMachine {
+func NewVirtualMachine(sourceCode io.Reader, writer io.Writer) *VirtualMachine {
 	var disassembler Disassembler
 	if writer != nil {
 		disassembler = Disassembler{writer}
@@ -38,16 +39,23 @@ func NewVirtualMachine(writer io.Writer) *VirtualMachine {
 		disassembler = Disassembler{os.Stdout}
 	}
 
-	vm := VirtualMachine{InstructionCounter: 0, Stack: Stack{}, Disassembler: disassembler}
+	scanner := NewScanner(sourceCode)
+	compiler := Compiler{scanner}
+
+	vm := VirtualMachine{
+		InstructionCounter: 0,
+		Stack:              Stack{},
+		Disassembler:       disassembler,
+		Compiler:           compiler,
+	}
 	return &vm
 
 }
 
 // Interpret will execute the given bytecode
-func (vm *VirtualMachine) Interpret(chunk *Chunk) (InterpretResult, error) {
-	vm.Chunk = chunk
-	vm.InstructionCounter = 0
-	return vm.run()
+func (vm *VirtualMachine) Interpret() (InterpretResult, error) {
+	vm.compile()
+	return InterpretOk, nil
 
 }
 
@@ -62,9 +70,7 @@ func (vm *VirtualMachine) printStack() {
 func (vm *VirtualMachine) run() (InterpretResult, error) {
 
 	for {
-		// if len(vm.Stack.values) > 0 {
 		vm.printStack()
-		// }
 		vm.disassembleInstruction(*vm.Chunk, int(vm.InstructionCounter))
 		instruction := vm.readByte()
 
