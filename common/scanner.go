@@ -11,6 +11,7 @@ import (
 
 // Scanner parses Yalla source code
 type Scanner struct {
+	column  int
 	line    int
 	start   int
 	current int
@@ -49,6 +50,7 @@ func (sc *Scanner) skipWhitespace() {
 		case '\n':
 			{
 				sc.line++
+				sc.column = 0
 				sc.advance()
 				continue
 			}
@@ -281,6 +283,7 @@ func (sc *Scanner) stringToken() Token {
 		r := sc.advance()
 		if r == '\n' {
 			sc.line++
+			sc.column = 0
 		}
 
 	}
@@ -316,6 +319,8 @@ func (sc *Scanner) NewToken(tokenType TokenType) Token {
 	var token Token
 	token.tokenType = tokenType
 	token.str = string(sc.text)
+	token.line = sc.line
+	token.position = sc.column
 
 	return token
 }
@@ -419,4 +424,5 @@ type Token struct {
 	tokenType TokenType
 	str       string
 	line      int
+	position  int
 }
